@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Pull-String Light Bulb</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-brick state-off">
+  <!-- Room background overlay for dynamic lighting -->
+  <div class="room-background" id="roomBg"></div>
+  <div class="light-cone" id="lightCone"></div>
+  <canvas id="dustCanvas"></canvas>
+
+  <!-- Header Branding -->
+  <header class="app-header">
+    <div class="logo">
+      <span class="logo-icon">💡</span>
+      <h1>Lumina Pull Switch</h1>
+    </div>
+    <div class="status-badge" id="statusBadge">LIGHT OFF</div>
+  </header>
+
+  <!-- Interactive Light Assembly Container -->
+  <main class="lamp-viewport">
+    <div class="lamp-assembly" id="lampAssembly">
+      <!-- Ceiling cord attachment -->
+      <div class="ceiling-mount"></div>
+      
+      <!-- Power cable -->
+      <div class="power-cord"></div>
+
+      <!-- Socket Holder -->
+      <div class="socket">
+        <div class="socket-top"></div>
+        <div class="socket-body"></div>
+        <div class="socket-ring"></div>
+      </div>
+
+      <!-- SVG Light Bulb -->
+      <div class="bulb-container" id="bulbContainer">
+        <svg class="bulb-svg" viewBox="0 0 200 280" width="200" height="280">
+          <defs>
+            <!-- Bulb Glass Gradient -->
+            <linearGradient id="glassOffGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="rgba(255, 255, 255, 0.4)" />
+              <stop offset="50%" stop-color="rgba(255, 255, 255, 0.1)" />
+              <stop offset="100%" stop-color="rgba(200, 200, 220, 0.2)" />
+            </linearGradient>
+
+            <radialGradient id="bulbGlowGrad" cx="50%" cy="40%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+              <stop offset="35%" stop-color="var(--glow-primary)" stop-opacity="0.9" />
+              <stop offset="70%" stop-color="var(--glow-secondary)" stop-opacity="0.4" />
+              <stop offset="100%" stop-color="var(--glow-secondary)" stop-opacity="0" />
+            </radialGradient>
+
+            <filter id="filamentGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur1" />
+              <feGaussianBlur stdDeviation="8" result="blur2" />
+              <feMerge>
+                <feMergeNode in="blur2" />
+                <feMergeNode in="blur1" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            <filter id="bulbBloom" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="12" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- Outer Glow Aura when ON -->
+          <circle class="bulb-aura" cx="100" cy="130" r="85" fill="url(#bulbGlowGrad)" />
+
+          <!-- Glass Envelope Outer Shell -->
+          <path class="bulb-glass-base" d="M 65 30 
+                   C 65 10, 135 10, 135 30 
+                   C 135 45, 175 75, 175 125 
+                   C 175 180, 140 215, 100 215 
+                   C 60 215, 25 180, 25 125 
+                   C 25 75, 65 45, 65 30 Z" 
+                fill="url(#glassOffGrad)" 
+                stroke="rgba(255, 255, 255, 0.3)" 
+                stroke-width="2" />
+
+          <!-- Internal Stem Support Base -->
+          <path d="M 85 30 L 85 85 Q 100 95 115 85 L 115 30 Z" fill="rgba(200, 200, 210, 0.25)" stroke="rgba(255,255,255,0.15)" />
+          <line x1="88" y1="85" x2="82" y2="140" stroke="#777" stroke-width="1.8" />
+          <line x1="112" y1="85" x2="118" y2="140" stroke="#777" stroke-width="1.8" />
+
+          <!-- Filament Wires -->
+          <g class="filament-group" id="filamentGroup">
+            <!-- Filament coil loop -->
+            <path class="filament-line" d="M 82 140 Q 90 120 100 135 Q 110 120 118 140" 
+                  fill="none" 
+                  stroke="#444" 
+                  stroke-width="3.5" 
+                  stroke-linecap="round" />
+            <path class="filament-core" d="M 82 140 Q 90 120 100 135 Q 110 120 118 140" 
+                  fill="none" 
+                  stroke="#ff5500" 
+                  stroke-width="2" 
+                  stroke-linecap="round" />
+          </g>
+
+          <!-- Glass Reflections & Highlights -->
+          <path d="M 40 100 A 70 70 0 0 1 75 45" fill="none" stroke="rgba(255, 255, 255, 0.6)" stroke-width="4" stroke-linecap="round" />
+          <path d="M 35 125 A 75 75 0 0 0 45 155" fill="none" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2.5" stroke-linecap="round" />
+          <ellipse cx="145" cy="85" rx="8" ry="18" transform="rotate(-30 145 85)" fill="rgba(255, 255, 255, 0.25)" />
+        </svg>
+      </div>
+
+      <!-- Dynamic Interactive Pull String -->
+      <div class="pull-string-wrapper" id="stringWrapper">
+        <svg class="string-svg" id="stringSvg">
+          <path id="stringPath" d="M 10 0 L 10 220" stroke="rgba(230, 230, 235, 0.8)" stroke-width="3" fill="none" stroke-dasharray="4, 2" />
+        </svg>
+        <!-- Pull Handle / Ring Bead -->
+        <div class="pull-handle" id="pullHandle" title="Click or Drag down to toggle light!">
+          <div class="handle-ring"></div>
+          <div class="handle-bead"></div>
+          <div class="pull-hint">PULL</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Control Deck -->
+  <aside class="control-panel">
+    <div class="panel-header">
+      <h2>Controls & Ambience</h2>
+      <button id="togglePanelBtn" class="icon-btn" aria-label="Minimize panel">⚙️</button>
+    </div>
+
+    <div class="panel-body" id="panelBody">
+      <!-- Brightness Dimmer -->
+      <div class="control-group">
+        <label for="dimmerSlider">
+          <span>Brightness Dimmer</span>
+          <span id="dimmerVal">100%</span>
+        </label>
+        <input type="range" id="dimmerSlider" min="10" max="100" value="100" step="1">
+      </div>
+
+      <!-- Color Temperature presets -->
+      <div class="control-group">
+        <label>Light Tone / Color</label>
+        <div class="color-presets">
+          <button class="color-btn active" data-color="edison" title="Warm Edison (2700K)" style="--c: #ffaa33;"></button>
+          <button class="color-btn" data-color="amber" title="Deep Amber (2000K)" style="--c: #ff6600;"></button>
+          <button class="color-btn" data-color="white" title="Soft White (4000K)" style="--c: #ffffff;"></button>
+          <button class="color-btn" data-color="neon-pink" title="Cyber Pink" style="--c: #ff007f;"></button>
+          <button class="color-btn" data-color="cyan" title="Electric Cyan" style="--c: #00e5ff;"></button>
+          <button class="color-btn" data-color="emerald" title="Emerald Green" style="--c: #00ff88;"></button>
+        </div>
+      </div>
+
+      <!-- Room Background Themes -->
+      <div class="control-group">
+        <label>Room Ambience</label>
+        <div class="theme-grid">
+          <button class="theme-btn active" data-theme="brick">🧱 Brick</button>
+          <button class="theme-btn" data-theme="wood">🪵 Wood</button>
+          <button class="theme-btn" data-theme="dark">🖤 Minimal</button>
+          <button class="theme-btn" data-theme="stars">🌌 Night</button>
+        </div>
+      </div>
+
+      <!-- Audio Switch -->
+      <div class="control-group row-group">
+        <label for="soundToggle">Sound Effects</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="soundToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Quick Action Button -->
+      <button class="action-btn" id="quickToggleBtn">
+        <span class="btn-icon">🔌</span>
+        <span id="quickToggleText">Turn Light ON</span>
+      </button>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>
