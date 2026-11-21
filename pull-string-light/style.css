@@ -1,0 +1,618 @@
+/* Custom Design System & CSS Variables */
+:root {
+  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  
+  /* State & Color Theme Variables (Dynamic) */
+  --glow-primary: #ffaa33;
+  --glow-secondary: rgba(255, 170, 51, 0.4);
+  --glow-core: #ffffff;
+  --light-intensity: 1; /* Dimmer ratio 0.1 to 1.0 */
+  
+  /* Dark Room Default Colors */
+  --bg-darkness: #090a0f;
+  --text-main: #f0f2f5;
+  --panel-bg: rgba(20, 22, 32, 0.65);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --accent-color: #ffaa33;
+  
+  --transition-speed: 0.4s;
+}
+
+/* Reset & Base Setup */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  background-color: var(--bg-darkness);
+  color: var(--text-main);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Room Background Texture Layers */
+.room-background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transition: opacity 0.5s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Room Themes */
+body.theme-brick .room-background {
+  background-color: #0d090a;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)),
+    radial-gradient(circle at 50% 150px, rgba(50, 20, 20, 0.5), transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px);
+}
+
+body.theme-wood .room-background {
+  background-color: #0a0806;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.96)),
+    repeating-linear-gradient(90deg, #18120c, #18120c 60px, #120e09 60px, #120e09 120px);
+}
+
+body.theme-dark .room-background {
+  background-color: #060709;
+  background-image: radial-gradient(circle at 50% 30%, #10141d 0%, #040507 80%);
+}
+
+body.theme-stars .room-background {
+  background-color: #05060b;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 100px 150px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 240px 80px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 300px 280px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 450px 180px, #fff, rgba(0,0,0,0));
+  background-size: 500px 500px;
+}
+
+/* Light Cone & Dynamic Illumination Beam */
+.light-cone {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: radial-gradient(
+    ellipse at 50% 170px,
+    calc(var(--glow-primary)) 0%,
+    var(--glow-secondary) 25%,
+    rgba(0, 0, 0, 0.85) 75%,
+    rgba(0, 0, 0, 0.98) 100%
+  );
+  mix-blend-mode: screen;
+}
+
+body.state-on .light-cone {
+  opacity: calc(0.85 * var(--light-intensity));
+}
+
+/* Dust Particle Overlay Canvas */
+#dustCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+body.state-on #dustCanvas {
+  opacity: calc(0.9 * var(--light-intensity));
+}
+
+/* Header UI */
+.app-header {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 8px 18px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.logo-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 0 8px var(--glow-primary));
+}
+
+.logo h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 30px;
+  background: rgba(255, 55, 55, 0.15);
+  color: #ff5555;
+  border: 1px solid rgba(255, 55, 55, 0.3);
+  transition: all 0.3s ease;
+}
+
+body.state-on .status-badge {
+  background: rgba(40, 220, 120, 0.15);
+  color: #28dc78;
+  border-color: rgba(40, 220, 120, 0.4);
+  box-shadow: 0 0 12px rgba(40, 220, 120, 0.3);
+}
+
+/* Lamp Viewport Container */
+.lamp-viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.lamp-assembly {
+  position: relative;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Ceiling Mount Mount */
+.ceiling-mount {
+  width: 70px;
+  height: 18px;
+  background: linear-gradient(180deg, #444 0%, #1a1a1a 100%);
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Power Cord */
+.power-cord {
+  width: 4px;
+  height: 90px;
+  background: linear-gradient(90deg, #222 0%, #444 50%, #111 100%);
+  box-shadow: 1px 0 5px rgba(0,0,0,0.5);
+}
+
+/* Socket Holder */
+.socket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.socket-top {
+  width: 32px;
+  height: 10px;
+  background: #2a2a2a;
+  border-radius: 4px 4px 0 0;
+}
+
+.socket-body {
+  width: 50px;
+  height: 48px;
+  background: linear-gradient(135deg, #b8860b 0%, #8b6508 50%, #4a3504 100%);
+  border-radius: 6px;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -4px 6px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.socket-ring {
+  width: 56px;
+  height: 12px;
+  background: linear-gradient(90deg, #d4af37 0%, #8b6508 100%);
+  border-radius: 3px;
+  margin-top: -2px;
+}
+
+/* Bulb SVG Container */
+.bulb-container {
+  position: relative;
+  margin-top: -12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.bulb-container:hover {
+  transform: scale(1.02);
+}
+
+/* SVG Bulb Elements Styling */
+.bulb-svg {
+  overflow: visible;
+}
+
+.bulb-aura {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.state-on .bulb-aura {
+  opacity: calc(0.9 * var(--light-intensity));
+  filter: drop-shadow(0 0 25px var(--glow-primary));
+}
+
+.filament-line {
+  transition: stroke 0.3s ease, filter 0.3s ease;
+}
+
+.filament-core {
+  opacity: 0.3;
+  transition: opacity 0.3s ease, stroke 0.3s ease;
+}
+
+body.state-on .filament-line {
+  stroke: #ffffff;
+  filter: url(#filamentGlow);
+}
+
+body.state-on .filament-core {
+  opacity: 1;
+  stroke: var(--glow-primary);
+  filter: drop-shadow(0 0 10px var(--glow-primary));
+}
+
+/* Interactive Pull String Assembly */
+.pull-string-wrapper {
+  position: absolute;
+  top: 130px; /* Origin near socket/bulb top right */
+  left: calc(50% + 22px);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.string-svg {
+  width: 60px;
+  height: 350px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pull-handle {
+  position: absolute;
+  top: 220px;
+  left: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  transition: transform 0.05s linear;
+}
+
+.pull-handle:active {
+  cursor: grabbing;
+}
+
+.handle-bead {
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.handle-ring {
+  width: 22px;
+  height: 28px;
+  border: 3.5px solid #d4af37;
+  border-radius: 50% 50% 40% 40%;
+  margin-top: -2px;
+  background: rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.pull-handle:hover .handle-ring {
+  transform: scale(1.15);
+  border-color: #fff;
+  box-shadow: 0 0 12px var(--glow-primary);
+}
+
+.pull-hint {
+  margin-top: 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(0,0,0,0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+  animation: pulseHint 2s infinite ease-in-out;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 0.85; transform: translateY(3px); }
+}
+
+/* Control Panel Drawer */
+.control-panel {
+  position: absolute;
+  bottom: 24px;
+  right: 28px;
+  z-index: 10;
+  width: 320px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.control-panel.collapsed .panel-body {
+  display: none;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.panel-header h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.panel-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Control Elements */
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: space-between;
+}
+
+.control-group.row-group {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Slider Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--glow-primary);
+  box-shadow: 0 0 10px var(--glow-primary);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Color Temperature Preset Buttons */
+.color-presets {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 2px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.color-btn:hover {
+  transform: scale(1.15);
+}
+
+.color-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 12px var(--c);
+}
+
+/* Theme Switcher Grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.theme-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.theme-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--glow-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Toggle Switch UI */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.toggle-switch .slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: var(--glow-primary);
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* Main Action Button */
+.action-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--glow-primary) 0%, #e68a00 100%);
+  border: none;
+  border-radius: 12px;
+  color: #111;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(255, 170, 51, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(255, 170, 51, 0.5);
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .control-panel {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+
+  .app-header {
+    top: 16px;
+    left: 16px;
+  }
+}
